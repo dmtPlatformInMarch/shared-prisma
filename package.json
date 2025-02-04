@@ -12,11 +12,9 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.7"
-  },
-  "peerDependencies": {
-    "@prisma/client": "^6.3.0",
-    "prisma": "^5.22.0"
+    "@nestjs/common": "^11.0.7",
+    "@prisma/client": "^6.3.0",  
+    "prisma": "^6.3.0"
   },
   "files": [
     "dist",
