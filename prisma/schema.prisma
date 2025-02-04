@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id         String       @id
+  role       Role         @default(USER)
+  name       String
+  email      String
+  createdAt  DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime     @default(now()) @db.Timestamptz(6)
+  Curriculum Curriculum[]
+  Lesson     Lesson[]
+}
+
+model Users {
+  id        String       @id
+  name      String
+  courses   Enrollment[]
+  role      Role         @default(USER)
+  email     String
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime     @default(now()) @db.Timestamptz(6)
+}
+
+model Curriculum {
+  curriculum_id            String       @id @default(uuid())
+  curriculum_name          String
+  curriculum_description   String
+  curriculum_duration      String
+  curriculum_tags          String[]
+  curriculum_order         String
+  curriculum_requirements  String[]
+  curriculum_learning      String[]
+  category                 String
+  curriculum_likes         String[]     @default([])
+  curriculum_views         String[]     @default([])
+  curriculum_subscribers   String[]     @default([])
+  currriculum_rating       Float[]      @default([])
+  curriculum_visibility    Visibility   @default(PRIVATE)
+  curriculum_updatedAt     DateTime     @default(now()) @db.Timestamptz(6)
+  curriculum_createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  curriculum_course_number Int
+  owner_id                 String
+  owner                    Admin        @relation(fields: [owner_id], references: [id])
+  related_lessons          Lesson[]     @relation("CurriculumLessons")
+  curriculum_markdown      String?      @default("")
+  sections                 Section[]
+  enrollments              Enrollment[] // Relation to Enrollment model
+}
+
+model Section {
+  section_id   String     @id @default(uuid())
+  title        String
+  curriculum   Curriculum @relation(fields: [curriculumId], references: [curriculum_id])
+  curriculumId String
+  videos       Lesson[]   @relation("SectionVideos")
+}
+
+model Lesson {
+  lesson_id          String             @id @default(uuid())
+  lesson_name        String
+  lesson_description String
+  lesson_video       String
+  lesson_duration    String
+  lesson_thumbnail   String
+  lesson_visibility  Visibility         @default(PRIVATE)
+  lesson_language    String
+  lesson_updatedAt   DateTime           @default(now()) @db.Timestamptz(6)
+  lesson_createdAt   DateTime           @default(now()) @db.Timestamptz(6)
+  lesson_views       Int
+  lesson_comments    Int
+  videoId            String?            @unique
+  lesson_curriculum  LessonCurriculum[]
+  curriculums        Curriculum[]       @relation("CurriculumLessons")
+
+  owner_id String
+  owner    Admin  @relation(fields: [owner_id], references: [id])
+
+  sections Section[]      @relation("SectionVideos") // Many-to-many relation with sections
+  watched  WatchedVideo[]
+}
+
+model LessonCurriculum {
+  main_id   String  @id @default(uuid())
+  id        String
+  name      String
+  lesson_id String?
+  lesson    Lesson? @relation(fields: [lesson_id], references: [lesson_id])
+
+  @@map("LessonCurriculum")
+}
+
+model WatchedVideo {
+  id              String     @id @default(uuid())
+  enrollment_id   String
+  enrollment      Enrollment @relation(fields: [enrollment_id], references: [id])
+  course_video    Lesson     @relation(fields: [course_video_id], references: [lesson_id])
+  course_video_id String
+  watchedAt       DateTime   @default(now())
+
+  @@unique([enrollment_id, course_video_id]) // Composite unique constraint
+}
+
+model Enrollment {
+  id              String         @id @default(uuid())
+  user_id         String
+  course_id       String
+  course_progress Int
+  user            Users          @relation(fields: [user_id], references: [id])
+  curriculum      Curriculum     @relation(fields: [course_id], references: [curriculum_id])
+  WatchedVideo    WatchedVideo[]
+  enrolledAt      DateTime       @default(now()) @db.Timestamptz(6)
+}
+
+enum Role {
+  ADMIN
+  USER
+  ROOT_ADMIN
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  PARTIALLY_PUBLIC
+}
