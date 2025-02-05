@@ -18,6 +18,8 @@
   },
   "files": [
     "dist",
-    ".env.template"
+    "prisma",
+    "*.md",
+    "LICENSE"
   ]
 }
