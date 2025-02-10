@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
@@ -26,11 +21,11 @@ model Admin {
 model Users {
   id        String       @id
   name      String
-  courses   Enrollment[]
   role      Role         @default(USER)
   email     String
   createdAt DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt DateTime     @default(now()) @db.Timestamptz(6)
+  courses   Enrollment[]
 }
 
 model Curriculum {
@@ -52,18 +47,18 @@ model Curriculum {
   curriculum_createdAt     DateTime     @default(now()) @db.Timestamptz(6)
   curriculum_course_number Int
   owner_id                 String
-  owner                    Admin        @relation(fields: [owner_id], references: [id])
-  related_lessons          Lesson[]     @relation("CurriculumLessons")
   curriculum_markdown      String?      @default("")
+  owner                    Admin        @relation(fields: [owner_id], references: [id])
+  enrollments              Enrollment[]
   sections                 Section[]
-  enrollments              Enrollment[] // Relation to Enrollment model
+  related_lessons          Lesson[]     @relation("CurriculumLessons")
 }
 
 model Section {
   section_id   String     @id @default(uuid())
   title        String
-  curriculum   Curriculum @relation(fields: [curriculumId], references: [curriculum_id])
   curriculumId String
+  curriculum   Curriculum @relation(fields: [curriculumId], references: [curriculum_id])
   videos       Lesson[]   @relation("SectionVideos")
 }
 
@@ -81,14 +76,12 @@ model Lesson {
   lesson_views       Int
   lesson_comments    Int
   videoId            String?            @unique
+  owner_id           String
+  owner              Admin              @relation(fields: [owner_id], references: [id])
   lesson_curriculum  LessonCurriculum[]
+  watched            WatchedVideo[]
   curriculums        Curriculum[]       @relation("CurriculumLessons")
-
-  owner_id String
-  owner    Admin  @relation(fields: [owner_id], references: [id])
-
-  sections Section[]      @relation("SectionVideos") // Many-to-many relation with sections
-  watched  WatchedVideo[]
+  sections           Section[]          @relation("SectionVideos")
 }
 
 model LessonCurriculum {
@@ -104,12 +97,12 @@ model LessonCurriculum {
 model WatchedVideo {
   id              String     @id @default(uuid())
   enrollment_id   String
-  enrollment      Enrollment @relation(fields: [enrollment_id], references: [id])
-  course_video    Lesson     @relation(fields: [course_video_id], references: [lesson_id])
   course_video_id String
   watchedAt       DateTime   @default(now())
+  course_video    Lesson     @relation(fields: [course_video_id], references: [lesson_id])
+  enrollment      Enrollment @relation(fields: [enrollment_id], references: [id])
 
-  @@unique([enrollment_id, course_video_id]) // Composite unique constraint
+  @@unique([enrollment_id, course_video_id])
 }
 
 model Enrollment {
@@ -117,10 +110,10 @@ model Enrollment {
   user_id         String
   course_id       String
   course_progress Int
-  user            Users          @relation(fields: [user_id], references: [id])
-  curriculum      Curriculum     @relation(fields: [course_id], references: [curriculum_id])
-  WatchedVideo    WatchedVideo[]
   enrolledAt      DateTime       @default(now()) @db.Timestamptz(6)
+  curriculum      Curriculum     @relation(fields: [course_id], references: [curriculum_id])
+  user            Users          @relation(fields: [user_id], references: [id])
+  WatchedVideo    WatchedVideo[]
 }
 
 enum Role {
