@@ -98,6 +98,8 @@ model WatchedVideo {
   id              String     @id @default(uuid())
   enrollment_id   String
   course_video_id String
+  isCompleted     Boolean    @default(false)
+  percentage      Int        @default(0)
   watchedAt       DateTime   @default(now())
   course_video    Lesson     @relation(fields: [course_video_id], references: [lesson_id])
   enrollment      Enrollment @relation(fields: [enrollment_id], references: [id])
