@@ -12,24 +12,26 @@ model Admin {
   role       Role         @default(USER)
   name       String
   email      String
-  createdAt  DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime     @default(now()) @db.Timestamptz(6)
-  Curriculum Curriculum[]
-  Lesson     Lesson[]
+  created_at DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at DateTime     @default(now()) @db.Timestamptz(6)
+  curriculum Curriculum[]
+  lesson     Lesson[]
 }
 
 model Users {
-  id        String       @id
-  name      String
-  role      Role         @default(USER)
-  email     String
-  createdAt DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime     @default(now()) @db.Timestamptz(6)
-  courses   Enrollment[]
+  id                       String                   @id
+  name                     String
+  role                     Role                     @default(USER)
+  email                    String
+  created_at               DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime                 @default(now()) @db.Timestamptz(6)
+  courses                  Enrollment[]
+  course_related_questions CourseRelatedQuestions[]
+  curriculum_rating        CurriculumRating[]
 }
 
 model Curriculum {
-  curriculum_id            String       @id @default(uuid())
+  curriculum_id            String                   @id @default(uuid())
   curriculum_name          String
   curriculum_description   String
   curriculum_duration      String
@@ -37,29 +39,98 @@ model Curriculum {
   curriculum_order         String
   curriculum_requirements  String[]
   curriculum_learning      String[]
+  curriculum_level         curriculum_level         @default(BEGINNER)
   category                 String
-  curriculum_likes         String[]     @default([])
-  curriculum_views         String[]     @default([])
-  curriculum_subscribers   String[]     @default([])
-  currriculum_rating       Float[]      @default([])
-  curriculum_visibility    Visibility   @default(PRIVATE)
-  curriculum_updatedAt     DateTime     @default(now()) @db.Timestamptz(6)
-  curriculum_createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  curriculum_visibility    Visibility               @default(PRIVATE)
+  curriculum_updated_at    DateTime                 @default(now()) @db.Timestamptz(6)
+  curriculum_created_at    DateTime                 @default(now()) @db.Timestamptz(6)
   curriculum_course_number Int
   owner_id                 String
-  curriculum_markdown      String?      @default("")
-  owner                    Admin        @relation(fields: [owner_id], references: [id])
+  curriculum_markdown      String?                  @default("")
+  owner                    Admin                    @relation(fields: [owner_id], references: [id])
   enrollments              Enrollment[]
   sections                 Section[]
-  related_lessons          Lesson[]     @relation("CurriculumLessons")
+  related_lessons          Lesson[]                 @relation("CurriculumLessons")
+  course_related_questions CourseRelatedQuestions[]
+  curriculum_rating        CurriculumRating[]
+  curriculum_likes         CurriculumLikes[]
+  curriculum_views         CurriculumViews[]
+  average_views            Int                      @default(0) // Cached average views for optimization
+  average_likes            Int                      @default(0) // Cached average likes for optimization
+  average_rating           Float                    @default(0) // Cached average rating for optimization
+}
+
+model CurriculumViews {
+  id            String     @id @default(uuid())
+  userId        String
+  curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
+  curriculum_id String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now())
+}
+
+model CurriculumLikes {
+  id            String     @id @default(uuid())
+  userId        String
+  curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
+  curriculum_id String
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @default(now())
+}
+
+model CurriculumRating {
+  id            String     @id @default(uuid())
+  score         Int
+  review        String? // Optional text review
+  user          Users      @relation(fields: [user_id], references: [id])
+  user_id       String
+  curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
+  curriculum_id String
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @default(now())
+
+  @@unique([user_id, curriculum_id]) // Ensures one rating per user per curriculum
+}
+
+model CourseRelatedQuestions {
+  id         String     @id @default(uuid())
+  question   String
+  course_id  String
+  curriculum Curriculum @relation(fields: [course_id], references: [curriculum_id])
+  owner_id   String
+  owner      Users      @relation(fields: [owner_id], references: [id])
+  comments   Comment[]
+  likes      Likes[]
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now())
+}
+
+model Comment {
+  comment_id    String                 @id @default(uuid())
+  comment_body  String
+  comment_likes String[]
+  comment_owner String
+  question_id   String
+  question      CourseRelatedQuestions @relation(fields: [question_id], references: [id]) // 1 comment to 1
+  created_at    DateTime               @default(now())
+  updated_at    DateTime               @default(now())
+}
+
+model Likes {
+  id          String                 @id @default(uuid())
+  like_owner  String
+  question_id String
+  question    CourseRelatedQuestions @relation(fields: [question_id], references: [id])
+  created_at  DateTime               @default(now())
+  updated_at  DateTime               @default(now())
 }
 
 model Section {
-  section_id   String     @id @default(uuid())
-  title        String
-  curriculumId String
-  curriculum   Curriculum @relation(fields: [curriculumId], references: [curriculum_id])
-  videos       Lesson[]   @relation("SectionVideos")
+  section_id    String     @id @default(uuid())
+  title         String
+  curriculum_id String
+  curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
+  videos        Lesson[]   @relation("SectionVideos")
 }
 
 model Lesson {
@@ -71,8 +142,8 @@ model Lesson {
   lesson_thumbnail   String
   lesson_visibility  Visibility         @default(PRIVATE)
   lesson_language    String
-  lesson_updatedAt   DateTime           @default(now()) @db.Timestamptz(6)
-  lesson_createdAt   DateTime           @default(now()) @db.Timestamptz(6)
+  lesson_updated_at  DateTime           @default(now()) @db.Timestamptz(6)
+  lesson_created_at  DateTime           @default(now()) @db.Timestamptz(6)
   lesson_views       Int
   lesson_comments    Int
   videoId            String?            @unique
@@ -82,6 +153,19 @@ model Lesson {
   watched            WatchedVideo[]
   curriculums        Curriculum[]       @relation("CurriculumLessons")
   sections           Section[]          @relation("SectionVideos")
+  subtitle           Subtitle[]
+}
+
+model Subtitle {
+  id        Int            @id @default(autoincrement())
+  video_id  String
+  language  String // Language of the subtitle (e.g., "English", "Spanish", "French", "German")
+  file_url   String? // File URL or file path to the uploaded subtitle (optional if not uploaded yet)
+  status    SubtitleStatus // Status of the subtitle upload
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+
+  video Lesson @relation(fields: [video_id], references: [lesson_id])
 }
 
 model LessonCurriculum {
@@ -100,7 +184,7 @@ model WatchedVideo {
   course_video_id String
   isCompleted     Boolean    @default(false)
   percentage      Int        @default(0)
-  watchedAt       DateTime   @default(now())
+  watched_at      DateTime   @default(now())
   course_video    Lesson     @relation(fields: [course_video_id], references: [lesson_id])
   enrollment      Enrollment @relation(fields: [enrollment_id], references: [id])
 
@@ -112,10 +196,12 @@ model Enrollment {
   user_id         String
   course_id       String
   course_progress Int
-  enrolledAt      DateTime       @default(now()) @db.Timestamptz(6)
+  enrolled_at     DateTime       @default(now()) @db.Timestamptz(6)
   curriculum      Curriculum     @relation(fields: [course_id], references: [curriculum_id])
   user            Users          @relation(fields: [user_id], references: [id])
-  WatchedVideo    WatchedVideo[]
+  watched_video   WatchedVideo[]
+
+  @@unique([user_id, course_id])
 }
 
 enum Role {
@@ -128,4 +214,17 @@ enum Visibility {
   PUBLIC
   PRIVATE
   PARTIALLY_PUBLIC
+}
+
+enum curriculum_level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum SubtitleStatus {
+  WAITING
+  IN_PROGRESS
+  PUBLISHED
+  CANCELED
 }
