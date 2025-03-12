@@ -67,6 +67,8 @@ model CurriculumViews {
   curriculum_id String
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @default(now())
+
+  @@unique([userId, curriculum_id]) // Ensures one view per user per curriculum
 }
 
 model CurriculumLikes {
@@ -76,6 +78,8 @@ model CurriculumLikes {
   curriculum_id String
   created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
+
+  @@unique([userId, curriculum_id]) // Ensures one like per user per curriculum
 }
 
 model CurriculumRating {
@@ -123,6 +127,8 @@ model Likes {
   question    CourseRelatedQuestions @relation(fields: [question_id], references: [id])
   created_at  DateTime               @default(now())
   updated_at  DateTime               @default(now())
+
+  @@unique([like_owner, question_id])
 }
 
 model Section {
@@ -157,11 +163,11 @@ model Lesson {
 }
 
 model Subtitle {
-  id        Int            @id @default(autoincrement())
-  video_id  String
-  language  String // Language of the subtitle (e.g., "English", "Spanish", "French", "German")
+  id         Int            @id @default(autoincrement())
+  video_id   String
+  language   String // Language of the subtitle (e.g., "English", "Spanish", "French", "German")
   file_url   String? // File URL or file path to the uploaded subtitle (optional if not uploaded yet)
-  status    SubtitleStatus // Status of the subtitle upload
+  status     SubtitleStatus // Status of the subtitle upload
   created_at DateTime       @default(now())
   updated_at DateTime       @updatedAt
 
