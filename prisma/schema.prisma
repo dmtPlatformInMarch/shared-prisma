@@ -206,6 +206,7 @@ model Enrollment {
   curriculum      Curriculum     @relation(fields: [course_id], references: [curriculum_id])
   user            Users          @relation(fields: [user_id], references: [id])
   watched_video   WatchedVideo[]
+  is_rating       Boolean        @default(false)
 
   @@unique([user_id, course_id], name: "user_course_unique_enrollment") // Ensures one enrollment per user per course
 }
