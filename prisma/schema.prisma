@@ -68,7 +68,7 @@ model CurriculumViews {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @default(now())
 
-  @@unique([userId, curriculum_id]) // Ensures one view per user per curriculum
+  @@unique([userId, curriculum_id], name: "user_curriculum_unique_views") // Ensures one view per user per curriculum
 }
 
 model CurriculumLikes {
@@ -79,7 +79,7 @@ model CurriculumLikes {
   created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
 
-  @@unique([userId, curriculum_id]) // Ensures one like per user per curriculum
+  @@unique([userId, curriculum_id], name: "user_curriculum_unique_like") // Ensures one like per user per curriculum
 }
 
 model CurriculumRating {
@@ -93,7 +93,7 @@ model CurriculumRating {
   created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
 
-  @@unique([user_id, curriculum_id]) // Ensures one rating per user per curriculum
+  @@unique([user_id, curriculum_id], name: "user_curriculum_unique__rating") // Ensures one rating per user per curriculum
 }
 
 model CourseRelatedQuestions {
@@ -128,7 +128,7 @@ model Likes {
   created_at  DateTime               @default(now())
   updated_at  DateTime               @default(now())
 
-  @@unique([like_owner, question_id])
+  @@unique([like_owner, question_id], name: "user_question_unique_like")
 }
 
 model Section {
@@ -207,7 +207,7 @@ model Enrollment {
   user            Users          @relation(fields: [user_id], references: [id])
   watched_video   WatchedVideo[]
 
-  @@unique([user_id, course_id])
+  @@unique([user_id, course_id], name: "user_course_unique_enrollment") // Ensures one enrollment per user per course
 }
 
 enum Role {
