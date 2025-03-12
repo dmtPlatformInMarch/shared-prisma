@@ -58,6 +58,13 @@ model Curriculum {
   average_views            Int                      @default(0) // Cached average views for optimization
   average_likes            Int                      @default(0) // Cached average likes for optimization
   average_rating           Float                    @default(0) // Cached average rating for optimization
+  status                   Status                   @default(PENDING)
+  curriculum_price         Float                    @default(0)
+  curriculum_discount      Float                    @default(0)
+  curriculum_price_type    PriceType                @default(FREE)
+  is_paid                  Boolean                  @default(false)
+  curriculum_password      String?
+  private_link             String?                  @unique
 }
 
 model CurriculumViews {
@@ -272,4 +279,15 @@ enum SubtitleStatus {
   IN_PROGRESS
   PUBLISHED
   CANCELED
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PriceType {
+  FREE
+  PAID
 }
