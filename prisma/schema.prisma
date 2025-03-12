@@ -137,6 +137,44 @@ model Section {
   curriculum_id String
   curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
   videos        Lesson[]   @relation("SectionVideos")
+  quizes        Quize[]
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @default(now())
+}
+
+model Quize {
+  quize_id    String         @id @default(uuid())
+  quize_title String
+  quize_owner String
+  section_id  String         @unique
+  section     Section        @relation(fields: [section_id], references: [section_id])
+  questions   QuizQuestion[]
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @default(now())
+}
+
+model QuizQuestion {
+  question_id       String       @id @default(uuid())
+  question          String
+  quize_id          String
+  quize             Quize        @relation(fields: [quize_id], references: [quize_id])
+  options           QuizOption[]
+  correct_option_id String
+}
+
+model QuizOption {
+  option_id   String       @id @default(uuid())
+  text        String
+  question_id String
+  question    QuizQuestion @relation(fields: [question_id], references: [question_id])
+}
+
+model UserQuizAttempt {
+  attempt_id   String   @id @default(uuid())
+  user_id      String
+  quize_id     String
+  score        Int
+  completed_at DateTime @default(now())
 }
 
 model Lesson {
