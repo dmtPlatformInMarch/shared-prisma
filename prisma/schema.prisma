@@ -66,6 +66,23 @@ model Curriculum {
   curriculum_password      String?
   private_link             String?                  @unique
   is_allowed               Boolean                  @default(false)
+
+  Invite Invite[]
+}
+
+model Invite {
+  id          String   @id @default(uuid())
+  email       String
+  user_id     String? // Nullable until the user accepts and is created
+  course_id   String // The course the user is being invited to
+  is_accepted Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+
+  // Relations
+  course Curriculum @relation(fields: [course_id], references: [curriculum_id])
+
+  @@unique([email, course_id, id]) // Prevent duplicate invites for the same course
 }
 
 model CurriculumViews {
@@ -292,6 +309,7 @@ model Enrollment {
   user            Users          @relation(fields: [user_id], references: [id])
   watched_video   WatchedVideo[]
   is_rating       Boolean        @default(false)
+  course_type     CourseType     @default(PUBLIC)
 
   @@unique([user_id, course_id], name: "user_course_unique_enrollment") // Ensures one enrollment per user per course
 }
@@ -335,4 +353,9 @@ enum PriceType {
 enum ContentType {
   VIDEO
   TEXT
+}
+
+enum CourseType {
+  PUBLIC
+  PRIVATE
 }
