@@ -66,8 +66,99 @@ model Curriculum {
   curriculum_password      String?
   private_link             String?                  @unique
   is_allowed               Boolean                  @default(false)
+  website_discount         Boolean                  @default(false)
+  Invite                   Invite[]
+}
 
-  Invite Invite[]
+model Section {
+  section_id    String     @id @default(uuid())
+  title         String
+  curriculum_id String
+  curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
+  quizes        Quize[]
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @default(now())
+  content       Content[]
+}
+
+model Content {
+  content_id   String       @id @default(uuid())
+  content_type ContentType
+  lesson_id    String?      @unique // Enforces one-to-one
+  text_id      String?      @unique // Enforces one-to-one
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @default(now())
+  section_id   String
+  // One-to-One Relation with Lesson
+  lesson       Lesson?      @relation("ContentToLesson", fields: [lesson_id], references: [lesson_id])
+  // One-to-One Relation with TextContent
+  text         TextContent? @relation("ContentToText", fields: [text_id], references: [text_id])
+
+  section Section? @relation(fields: [section_id], references: [section_id])
+}
+
+model TextContent {
+  text_id     String   @id @default(uuid())
+  description String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  content     Content? @relation("ContentToText")
+}
+
+model Quize {
+  quize_id    String         @id @default(uuid())
+  quize_title String
+  quize_owner String
+  section_id  String         @unique
+  section     Section        @relation(fields: [section_id], references: [section_id])
+  questions   QuizQuestion[]
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @default(now())
+}
+
+model QuizQuestion {
+  question_id       String       @id @default(uuid())
+  question          String
+  quize_id          String
+  quize             Quize        @relation(fields: [quize_id], references: [quize_id])
+  options           QuizOption[]
+  correct_option_id String
+}
+
+model QuizOption {
+  option_id   String       @id @default(uuid())
+  text        String
+  question_id String
+  question    QuizQuestion @relation(fields: [question_id], references: [question_id])
+}
+
+model UserQuizAttempt {
+  attempt_id   String   @id @default(uuid())
+  user_id      String
+  quize_id     String
+  score        Int
+  completed_at DateTime @default(now())
+}
+
+model Lesson {
+  lesson_id          String             @id @default(uuid())
+  lesson_name        String
+  lesson_description String
+  lesson_video       String
+  lesson_duration    String
+  lesson_thumbnail   String
+  lesson_visibility  Visibility         @default(PRIVATE)
+  lesson_language    String
+  lesson_updated_at  DateTime           @default(now()) @db.Timestamptz(6)
+  lesson_created_at  DateTime           @default(now()) @db.Timestamptz(6)
+  videoId            String?            @unique
+  owner_id           String
+  owner              Admin              @relation(fields: [owner_id], references: [id])
+  lesson_curriculum  LessonCurriculum[]
+  watched            WatchedVideo[]
+  curriculums        Curriculum[]       @relation("CurriculumLessons")
+  subtitle           Subtitle[]
+  content            Content?           @relation("ContentToLesson")
 }
 
 model Invite {
@@ -171,97 +262,6 @@ model Likes {
   updated_at  DateTime               @default(now())
 
   @@unique([like_owner, question_id], name: "user_question_unique_like")
-}
-
-model Section {
-  section_id    String     @id @default(uuid())
-  title         String
-  curriculum_id String
-  curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
-  quizes        Quize[]
-  created_at    DateTime   @default(now())
-  updated_at    DateTime   @default(now())
-  content       Content[]
-}
-
-model Content {
-  content_id   String       @id @default(uuid())
-  content_type ContentType
-  lesson_id    String?      @unique // Enforces one-to-one
-  text_id      String?      @unique // Enforces one-to-one
-  created_at   DateTime     @default(now())
-  updated_at   DateTime     @default(now())
-  section_id   String
-  // One-to-One Relation with Lesson
-  lesson       Lesson?      @relation("ContentToLesson", fields: [lesson_id], references: [lesson_id])
-  // One-to-One Relation with TextContent
-  text         TextContent? @relation("ContentToText", fields: [text_id], references: [text_id])
-
-  section Section? @relation(fields: [section_id], references: [section_id])
-}
-
-model TextContent {
-  text_id     String   @id @default(uuid())
-  description String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
-  content     Content? @relation("ContentToText")
-}
-
-model Quize {
-  quize_id    String         @id @default(uuid())
-  quize_title String
-  quize_owner String
-  section_id  String         @unique
-  section     Section        @relation(fields: [section_id], references: [section_id])
-  questions   QuizQuestion[]
-  created_at  DateTime       @default(now())
-  updated_at  DateTime       @default(now())
-}
-
-model QuizQuestion {
-  question_id       String       @id @default(uuid())
-  question          String
-  quize_id          String
-  quize             Quize        @relation(fields: [quize_id], references: [quize_id])
-  options           QuizOption[]
-  correct_option_id String
-}
-
-model QuizOption {
-  option_id   String       @id @default(uuid())
-  text        String
-  question_id String
-  question    QuizQuestion @relation(fields: [question_id], references: [question_id])
-}
-
-model UserQuizAttempt {
-  attempt_id   String   @id @default(uuid())
-  user_id      String
-  quize_id     String
-  score        Int
-  completed_at DateTime @default(now())
-}
-
-model Lesson {
-  lesson_id          String             @id @default(uuid())
-  lesson_name        String
-  lesson_description String
-  lesson_video       String
-  lesson_duration    String
-  lesson_thumbnail   String
-  lesson_visibility  Visibility         @default(PRIVATE)
-  lesson_language    String
-  lesson_updated_at  DateTime           @default(now()) @db.Timestamptz(6)
-  lesson_created_at  DateTime           @default(now()) @db.Timestamptz(6)
-  videoId            String?            @unique
-  owner_id           String
-  owner              Admin              @relation(fields: [owner_id], references: [id])
-  lesson_curriculum  LessonCurriculum[]
-  watched            WatchedVideo[]
-  curriculums        Curriculum[]       @relation("CurriculumLessons")
-  subtitle           Subtitle[]
-  content            Content?           @relation("ContentToLesson")
 }
 
 model Subtitle {
