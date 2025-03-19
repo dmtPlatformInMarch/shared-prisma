@@ -62,6 +62,7 @@ model Curriculum {
   curriculum_price         Float                    @default(0)
   curriculum_discount      Float                    @default(0)
   curriculum_price_type    PriceType                @default(FREE)
+  currency                 String                   @default("USD")
   is_paid                  Boolean                  @default(false)
   curriculum_password      String?
   private_link             String?                  @unique
@@ -75,8 +76,7 @@ model Section {
   title         String
   curriculum_id String
   curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
-  quizes        Quize[]
-  created_at    DateTime   @default(now())
+  quizes          Quize? // Optional one-to-one relation to Quize  created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
   content       Content[]
 }
@@ -109,7 +109,7 @@ model Quize {
   quize_id    String         @id @default(uuid())
   quize_title String
   quize_owner String
-  section_id  String         @unique
+  section_id  String         @unique // Foreign key to Section.section_id
   section     Section        @relation(fields: [section_id], references: [section_id])
   questions   QuizQuestion[]
   created_at  DateTime       @default(now())
