@@ -62,7 +62,7 @@ model Curriculum {
   curriculum_price         Float                    @default(0)
   curriculum_discount      Float                    @default(0)
   curriculum_price_type    PriceType                @default(FREE)
-  currency                 String                   @default("USD")
+  currency                 String                   @default("KRW")
   is_paid                  Boolean                  @default(false)
   curriculum_password      String?
   private_link             String?                  @unique
