@@ -50,7 +50,6 @@ model Curriculum {
   owner                    Admin                    @relation(fields: [owner_id], references: [id])
   enrollments              Enrollment[]
   sections                 Section[]
-  related_lessons          Lesson[]                 @relation("CurriculumLessons")
   course_related_questions CourseRelatedQuestions[]
   curriculum_rating        CurriculumRating[]
   curriculum_likes         CurriculumLikes[]
@@ -154,9 +153,7 @@ model Lesson {
   videoId            String?            @unique
   owner_id           String
   owner              Admin              @relation(fields: [owner_id], references: [id])
-  lesson_curriculum  LessonCurriculum[]
   watched            WatchedVideo[]
-  curriculums        Curriculum[]       @relation("CurriculumLessons")
   subtitle           Subtitle[]
   content            Content[]           @relation("ContentToLesson")
 }
@@ -276,15 +273,6 @@ model Subtitle {
   video Lesson @relation(fields: [video_id], references: [lesson_id])
 }
 
-model LessonCurriculum {
-  main_id   String  @id @default(uuid())
-  id        String
-  name      String
-  lesson_id String?
-  lesson    Lesson? @relation(fields: [lesson_id], references: [lesson_id])
-
-  @@map("LessonCurriculum")
-}
 
 model WatchedVideo {
   id              String     @id @default(uuid())
