@@ -76,15 +76,15 @@ model Section {
   title         String
   curriculum_id String
   curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
-  quizes          Quize? // Optional one-to-one relation to Quize  created_at    DateTime   @default(now())
+  quizes        Quize? // Optional one-to-one relation to Quize  created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
-  content       Content[]
+  content      Content[]
 }
 
 model Content {
   content_id   String       @id @default(uuid())
   content_type ContentType
-  lesson_id    String?      @unique // Enforces one-to-one
+  lesson_id    String?      //@unique // Enforces one-to-one
   text_id      String?      @unique // Enforces one-to-one
   created_at   DateTime     @default(now())
   updated_at   DateTime     @default(now())
@@ -158,7 +158,7 @@ model Lesson {
   watched            WatchedVideo[]
   curriculums        Curriculum[]       @relation("CurriculumLessons")
   subtitle           Subtitle[]
-  content            Content?           @relation("ContentToLesson")
+  content            Content[]           @relation("ContentToLesson")
 }
 
 model Invite {
