@@ -77,6 +77,7 @@ model Section {
   curriculum    Curriculum @relation(fields: [curriculum_id], references: [curriculum_id])
   quizes        Quize? // Optional one-to-one relation to Quize  created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
+  created_at    DateTime   @default(now())
   content      Content[]
 }
 
