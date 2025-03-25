@@ -78,13 +78,13 @@ model Section {
   quizes        Quize? // Optional one-to-one relation to Quize  created_at    DateTime   @default(now())
   updated_at    DateTime   @default(now())
   created_at    DateTime   @default(now())
-  content      Content[]
+  content       Content[]
 }
 
 model Content {
   content_id   String       @id @default(uuid())
   content_type ContentType
-  lesson_id    String?      //@unique // Enforces one-to-one
+  lesson_id    String? //@unique // Enforces one-to-one
   text_id      String?      @unique // Enforces one-to-one
   created_at   DateTime     @default(now())
   updated_at   DateTime     @default(now())
@@ -94,7 +94,8 @@ model Content {
   // One-to-One Relation with TextContent
   text         TextContent? @relation("ContentToText", fields: [text_id], references: [text_id])
 
-  section Section? @relation(fields: [section_id], references: [section_id])
+  section       Section?       @relation(fields: [section_id], references: [section_id])
+  watched_video WatchedVideo[]
 }
 
 model TextContent {
@@ -141,22 +142,21 @@ model UserQuizAttempt {
 }
 
 model Lesson {
-  lesson_id          String             @id @default(uuid())
+  lesson_id          String     @id @default(uuid())
   lesson_name        String
   lesson_description String
   lesson_video       String
   lesson_duration    String
   lesson_thumbnail   String
-  lesson_visibility  Visibility         @default(PRIVATE)
+  lesson_visibility  Visibility @default(PRIVATE)
   lesson_language    String
-  lesson_updated_at  DateTime           @default(now()) @db.Timestamptz(6)
-  lesson_created_at  DateTime           @default(now()) @db.Timestamptz(6)
-  videoId            String?            @unique
+  lesson_updated_at  DateTime   @default(now()) @db.Timestamptz(6)
+  lesson_created_at  DateTime   @default(now()) @db.Timestamptz(6)
+  videoId            String?    @unique
   owner_id           String
-  owner              Admin              @relation(fields: [owner_id], references: [id])
-  watched            WatchedVideo[]
+  owner              Admin      @relation(fields: [owner_id], references: [id])
   subtitle           Subtitle[]
-  content            Content[]           @relation("ContentToLesson")
+  content            Content[]  @relation("ContentToLesson")
 }
 
 model Invite {
@@ -274,18 +274,18 @@ model Subtitle {
   video Lesson @relation(fields: [video_id], references: [lesson_id])
 }
 
-
 model WatchedVideo {
-  id              String     @id @default(uuid())
-  enrollment_id   String
-  course_video_id String
-  isCompleted     Boolean    @default(false)
-  percentage      Int        @default(0)
-  watched_at      DateTime   @default(now())
-  course_video    Lesson     @relation(fields: [course_video_id], references: [lesson_id])
-  enrollment      Enrollment @relation(fields: [enrollment_id], references: [id])
+  id             String     @id @default(uuid())
+  enrollment_id  String
+  content_id     String
+  isCompleted    Boolean    @default(false)
+  percentage     Int        @default(0)
+  watched_at     DateTime   @default(now())
+  course_content Content     @relation(fields: [content_id], references: [content_id])
+  enrollment     Enrollment @relation(fields: [enrollment_id], references: [id])
+  section_idx    Int        @default(0)
 
-  @@unique([enrollment_id, course_video_id])
+  @@unique([enrollment_id, content_id])
 }
 
 model Enrollment {
