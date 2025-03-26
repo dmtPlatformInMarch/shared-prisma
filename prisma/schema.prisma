@@ -284,7 +284,7 @@ model WatchedVideo {
   course_content Content?    @relation(fields: [content_id], references: [content_id])
   enrollment     Enrollment @relation(fields: [enrollment_id], references: [id])
   section_idx    Int        @default(0)
-  quize_idx      Int?
+  quize_idx      String?
 }
 
 model Enrollment {
