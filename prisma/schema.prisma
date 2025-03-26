@@ -277,13 +277,14 @@ model Subtitle {
 model WatchedVideo {
   id             String     @id @default(uuid())
   enrollment_id  String
-  content_id     String
+  content_id     String?
   isCompleted    Boolean    @default(false)
   percentage     Int        @default(0)
   watched_at     DateTime   @default(now())
-  course_content Content    @relation(fields: [content_id], references: [content_id])
+  course_content Content?    @relation(fields: [content_id], references: [content_id])
   enrollment     Enrollment @relation(fields: [enrollment_id], references: [id])
   section_idx    Int        @default(0)
+  quize_idx      Int?
 }
 
 model Enrollment {
