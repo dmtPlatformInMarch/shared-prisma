@@ -285,7 +285,7 @@ model WatchedVideo {
   enrollment     Enrollment @relation(fields: [enrollment_id], references: [id])
   section_idx    Int        @default(0)
 
-  @@unique([enrollment_id, content_id])
+  @@unique([enrollment_id])
 }
 
 model Enrollment {
