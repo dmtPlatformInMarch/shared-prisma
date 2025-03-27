@@ -28,6 +28,7 @@ model Users {
   courses                  Enrollment[]
   course_related_questions CourseRelatedQuestions[]
   curriculum_rating        CurriculumRating[]
+  comments                 Comment[]
 }
 
 model Curriculum {
@@ -134,25 +135,24 @@ model QuizOption {
 }
 
 model UserQuizAttempt {
-  attempt_id   String   @id @default(uuid())
-  user_id      String
-  quize_id     String
-  score        Int
-  total_wrong_answers Int
+  attempt_id            String                  @id @default(uuid())
+  user_id               String
+  quize_id              String
+  score                 Int
+  total_wrong_answers   Int
   total_correct_answers Int
-  total_questions Int
-  result       UserQuizAttemptAnswer[]
-  completed_at DateTime @default(now())
+  total_questions       Int
+  result                UserQuizAttemptAnswer[]
+  completed_at          DateTime                @default(now())
 }
 
 model UserQuizAttemptAnswer {
-  id             String   @id @default(uuid())
-  attempt_id     String
-  option_name      String
-  is_correct     Boolean
-  attempt        UserQuizAttempt @relation(fields: [attempt_id], references: [attempt_id])
-  question_name  String
-
+  id            String          @id @default(uuid())
+  attempt_id    String
+  option_name   String
+  is_correct    Boolean
+  attempt       UserQuizAttempt @relation(fields: [attempt_id], references: [attempt_id])
+  question_name String
 }
 
 model Lesson {
@@ -255,14 +255,15 @@ model QuestionReport {
 }
 
 model Comment {
-  comment_id    String                 @id @default(uuid())
-  comment_body  String
-  comment_likes String[]
-  comment_owner String
-  question_id   String
-  question      CourseRelatedQuestions @relation(fields: [question_id], references: [id]) // 1 comment to 1
-  created_at    DateTime               @default(now())
-  updated_at    DateTime               @default(now())
+  comment_id       String                 @id @default(uuid())
+  comment_body     String
+  comment_likes    String[]
+  comment_owner_id String
+  question_id      String
+  question         CourseRelatedQuestions @relation(fields: [question_id], references: [id]) // 1 comment to 1
+  comment_owner    Users                  @relation(fields: [comment_owner_id], references: [id]) // 1 comment owner to 1
+  created_at       DateTime               @default(now())
+  updated_at       DateTime               @default(now())
 }
 
 model Likes {
@@ -295,7 +296,7 @@ model WatchedVideo {
   isCompleted    Boolean    @default(false)
   percentage     Int        @default(0)
   watched_at     DateTime   @default(now())
-  course_content Content?    @relation(fields: [content_id], references: [content_id])
+  course_content Content?   @relation(fields: [content_id], references: [content_id])
   enrollment     Enrollment @relation(fields: [enrollment_id], references: [id])
   section_idx    Int        @default(0)
   quize_idx      String?
