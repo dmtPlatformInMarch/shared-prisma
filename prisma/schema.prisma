@@ -138,7 +138,21 @@ model UserQuizAttempt {
   user_id      String
   quize_id     String
   score        Int
+  total_wrong_answers Int
+  total_correct_answers Int
+  total_questions Int
+  result       UserQuizAttemptAnswer[]
   completed_at DateTime @default(now())
+}
+
+model UserQuizAttemptAnswer {
+  id             String   @id @default(uuid())
+  attempt_id     String
+  option_name      String
+  is_correct     Boolean
+  attempt        UserQuizAttempt @relation(fields: [attempt_id], references: [attempt_id])
+  question_name  String
+
 }
 
 model Lesson {
