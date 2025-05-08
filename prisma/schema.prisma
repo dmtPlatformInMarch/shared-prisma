@@ -108,14 +108,15 @@ model TextContent {
 }
 
 model Quize {
-  quize_id    String         @id @default(uuid())
+  quize_id    String            @id @default(uuid())
   quize_title String
   quize_owner String
-  section_id  String         @unique // Foreign key to Section.section_id
-  section     Section        @relation(fields: [section_id], references: [section_id])
+  section_id  String            @unique // Foreign key to Section.section_id
+  section     Section           @relation(fields: [section_id], references: [section_id])
   questions   QuizQuestion[]
-  created_at  DateTime       @default(now())
-  updated_at  DateTime       @default(now())
+  created_at  DateTime          @default(now())
+  updated_at  DateTime          @default(now())
+  attempts    UserQuizAttempt[]
 }
 
 model QuizQuestion {
@@ -144,6 +145,7 @@ model UserQuizAttempt {
   total_questions       Int
   result                UserQuizAttemptAnswer[]
   completed_at          DateTime                @default(now())
+  quiz                  Quize                   @relation(fields: [quize_id], references: [quize_id], onDelete: Cascade)
 }
 
 model UserQuizAttemptAnswer {
@@ -225,18 +227,18 @@ model CurriculumRating {
 }
 
 model CourseRelatedQuestions {
-  id             String     @id @default(uuid())
+  id             String           @id @default(uuid())
   question_title String
   body           String?
   course_id      String
-  curriculum     Curriculum @relation(fields: [course_id], references: [curriculum_id])
+  curriculum     Curriculum       @relation(fields: [course_id], references: [curriculum_id])
   owner_id       String
-  owner          Users      @relation(fields: [owner_id], references: [id])
+  owner          Users            @relation(fields: [owner_id], references: [id])
   comments       Comment[]
-  is_report      Boolean    @default(false)
+  is_report      Boolean          @default(false)
   likes          Likes[]
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @default(now())
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @default(now())
   tags           String[]
   QuestionReport QuestionReport[]
 }
