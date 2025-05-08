@@ -29,6 +29,7 @@ model Users {
   course_related_questions CourseRelatedQuestions[]
   curriculum_rating        CurriculumRating[]
   comments                 Comment[]
+  quiz_attempts           UserQuizAttempt[]
 }
 
 model Curriculum {
@@ -146,6 +147,7 @@ model UserQuizAttempt {
   result                UserQuizAttemptAnswer[]
   completed_at          DateTime                @default(now())
   quiz                  Quize                   @relation(fields: [quize_id], references: [quize_id], onDelete: Cascade)
+  user                 Users                   @relation(fields: [user_id], references: [id])
 }
 
 model UserQuizAttemptAnswer {
