@@ -8,15 +8,32 @@ datasource db {
 }
 
 model Admin {
-  id         String       @id
-  role       Role         @default(USER)
-  name       String
-  email      String
-  created_at DateTime     @default(now()) @db.Timestamptz(6)
-  updated_at DateTime     @default(now()) @db.Timestamptz(6)
-  curriculum Curriculum[]
-  lesson     Lesson[]
-  is_active  Boolean?      @default(true)
+  id           String        @id
+  role         Role          @default(INSTRUCTOR)
+  name         String
+  email        String
+  created_at   DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime      @default(now()) @db.Timestamptz(6)
+  curriculum   Curriculum[]
+  lesson       Lesson[]
+  is_active    Boolean?      @default(true)
+  plan         Plan          @default(FREE)
+  // For instructors: list of tutors they assigned
+  assigned_tutors CourseTutor[] @relation("InstructorToTutors")
+
+  // For tutors: instructor who assigned them
+  assigned_by     CourseTutor[] @relation("TutorToInstructor")
+}
+
+model CourseTutor {
+  id            String   @id @default(uuid())
+  tutor_id      String
+  assigner_id   String
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  tutor         Admin    @relation("TutorToInstructor", fields: [tutor_id], references: [id])
+  assigner      Admin    @relation("InstructorToTutors", fields: [assigner_id], references: [id])
 }
 
 model Users {
@@ -323,9 +340,10 @@ model Enrollment {
 }
 
 enum Role {
-  ADMIN
+  INSTRUCTOR
   USER
   ROOT_ADMIN
+  TUTOR
 }
 
 enum Visibility {
@@ -366,4 +384,10 @@ enum ContentType {
 enum CourseType {
   PUBLIC
   PRIVATE
+}
+
+enum Plan {
+  FREE
+  STANDARD
+  PREMIUM
 }
