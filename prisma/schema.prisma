@@ -21,22 +21,26 @@ model Admin {
   uploaded_video_size Int          @default(0) // Size in MB
 
   // For instructors: list of tutors they assigned
-  assigned_tutors CourseTutor[] @relation("InstructorToTutors")
-
-  // For tutors: instructor who assigned them
-  assigned_by CourseTutor[] @relation("TutorToInstructor")
+  assigned_tutors  CourseTutor[] @relation("InstructorToTutors")
+  // For tutors: list of courses they are assigned to
+  assigned_courses CourseTutor[] @relation("TutorToInstructor")
 }
 
 model CourseTutor {
-  id          String   @id @default(uuid())
-  tutor_id    String
-  assigner_id String
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+  id            String      @id @default(uuid())
+  tutor_id      String
+  assigner_id   String
+  curriculum_id String?     // Nullable to allow "all-course" assignment
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime    @default(now()) @db.Timestamptz(6)
 
-  tutor    Admin @relation("TutorToInstructor", fields: [tutor_id], references: [id])
-  assigner Admin @relation("InstructorToTutors", fields: [assigner_id], references: [id])
+  tutor         Admin       @relation("TutorToInstructor", fields: [tutor_id], references: [id], onDelete: Cascade)
+  assigner      Admin       @relation("InstructorToTutors", fields: [assigner_id], references: [id], onDelete: Cascade)
+  curriculum    Curriculum? @relation(fields: [curriculum_id], references: [curriculum_id], onDelete: Cascade)
+
+  @@unique([tutor_id, curriculum_id])
 }
+
 
 model Users {
   id                       String                   @id
@@ -90,6 +94,8 @@ model Curriculum {
   is_allowed               Boolean                  @default(false)
   website_discount         Boolean                  @default(false)
   Invite                   Invite[]
+  // For instructors: list of tutors they assigned
+  assigned_tutors          CourseTutor[]
 }
 
 model Section {
