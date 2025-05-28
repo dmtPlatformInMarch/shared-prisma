@@ -24,23 +24,23 @@ model Admin {
   assigned_tutors  CourseTutor[] @relation("InstructorToTutors")
   // For tutors: list of courses they are assigned to
   assigned_courses CourseTutor[] @relation("TutorToInstructor")
+  TutorInvite      TutorInvite[]
 }
 
 model CourseTutor {
-  id            String      @id @default(uuid())
+  id            String   @id @default(uuid())
   tutor_id      String
   assigner_id   String
-  curriculum_id String?     // Nullable to allow "all-course" assignment
-  created_at    DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime    @default(now()) @db.Timestamptz(6)
+  curriculum_id String? // Nullable to allow "all-course" assignment
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
 
-  tutor         Admin       @relation("TutorToInstructor", fields: [tutor_id], references: [id], onDelete: Cascade)
-  assigner      Admin       @relation("InstructorToTutors", fields: [assigner_id], references: [id], onDelete: Cascade)
-  curriculum    Curriculum? @relation(fields: [curriculum_id], references: [curriculum_id], onDelete: Cascade)
+  tutor      Admin       @relation("TutorToInstructor", fields: [tutor_id], references: [id], onDelete: Cascade)
+  assigner   Admin       @relation("InstructorToTutors", fields: [assigner_id], references: [id], onDelete: Cascade)
+  curriculum Curriculum? @relation(fields: [curriculum_id], references: [curriculum_id], onDelete: Cascade)
 
   @@unique([tutor_id, curriculum_id])
 }
-
 
 model Users {
   id                       String                   @id
@@ -54,6 +54,20 @@ model Users {
   curriculum_rating        CurriculumRating[]
   comments                 Comment[]
   quiz_attempts            UserQuizAttempt[]
+}
+
+model TutorInvite {
+  id           String       @id @default(uuid())
+  invite_email String
+  assigner_id  String
+  course_id    String      
+  token        String       @unique
+  status       InviteStatus @default(PENDING)
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  accepted_at  DateTime?
+  expires_at   DateTime // new field for expiration
+
+  assigner Admin @relation(fields: [assigner_id], references: [id])
 }
 
 model Curriculum {
@@ -398,4 +412,11 @@ enum Plan {
   FREE
   STANDARD
   PREMIUM
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REJECTED
 }
