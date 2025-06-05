@@ -60,9 +60,10 @@ model TutorInvite {
   id           String       @id @default(uuid())
   invite_email String
   assigner_id  String
-  course_id    String      
+  course_id    String
   token        String       @unique
   status       InviteStatus @default(PENDING)
+  tutor_name   String
   created_at   DateTime     @default(now()) @db.Timestamptz(6)
   accepted_at  DateTime?
   expires_at   DateTime // new field for expiration
