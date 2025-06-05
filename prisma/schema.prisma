@@ -63,7 +63,8 @@ model TutorInvite {
   course_id    String
   token        String       @unique
   status       InviteStatus @default(PENDING)
-  tutor_name   String       @default("Unknown")
+  tutor_name   String
+  course_name  String
   created_at   DateTime     @default(now()) @db.Timestamptz(6)
   accepted_at  DateTime?
   expires_at   DateTime // new field for expiration
