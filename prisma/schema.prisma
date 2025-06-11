@@ -18,7 +18,7 @@ model Admin {
   lesson              Lesson[]
   is_active           Boolean?     @default(true)
   plan                Plan         @default(FREE)
-  uploaded_video_size Int          @default(0) // Size in MB
+  uploaded_video_size BigInt       @default(0) // Size in MB
 
   // For instructors: list of tutors they assigned
   assigned_tutors  CourseTutor[] @relation("InstructorToTutors")
