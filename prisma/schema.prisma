@@ -203,21 +203,22 @@ model UserQuizAttemptAnswer {
 }
 
 model Lesson {
-  lesson_id          String     @id @default(uuid())
+  lesson_id          String       @id @default(uuid())
   lesson_name        String
   lesson_description String
   lesson_video       String
   lesson_duration    String
   lesson_thumbnail   String
-  lesson_visibility  Visibility @default(PRIVATE)
+  lesson_visibility  Visibility   @default(PRIVATE)
   lesson_language    String
-  lesson_updated_at  DateTime   @default(now()) @db.Timestamptz(6)
-  lesson_created_at  DateTime   @default(now()) @db.Timestamptz(6)
-  videoId            String?    @unique
+  status             UploadStatus @default(PENDING)
+  lesson_updated_at  DateTime     @default(now()) @db.Timestamptz(6)
+  lesson_created_at  DateTime     @default(now()) @db.Timestamptz(6)
+  videoId            String?      @unique
   owner_id           String
-  owner              Admin      @relation(fields: [owner_id], references: [id])
+  owner              Admin        @relation(fields: [owner_id], references: [id])
   subtitle           Subtitle[]
-  content            Content[]  @relation("ContentToLesson")
+  content            Content[]    @relation("ContentToLesson")
 }
 
 model Invite {
@@ -422,4 +423,11 @@ enum InviteStatus {
   ACCEPTED
   EXPIRED
   REJECTED
+}
+
+enum UploadStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
 }
