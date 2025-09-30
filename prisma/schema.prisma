@@ -365,6 +365,14 @@ model Enrollment {
   @@unique([user_id, course_id], name: "user_course_unique_enrollment") // Ensures one enrollment per user per course
 }
 
+model Video {
+  id          String   @id @default(uuid())
+  videoId     String   @unique // 업로드 시 생성된 UUID
+  owner_id    String
+  owner       Admin    @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  originalUrl String
+}
+
 enum Role {
   INSTRUCTOR
   USER
