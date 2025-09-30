@@ -25,6 +25,7 @@ model Admin {
   // For tutors: list of courses they are assigned to
   assigned_courses CourseTutor[] @relation("TutorToInstructor")
   TutorInvite      TutorInvite[]
+  videos    Video[]
 }
 
 model CourseTutor {
